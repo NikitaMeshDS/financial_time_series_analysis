@@ -7,23 +7,36 @@
 ## Структура репозитория
 - **В файле TS_predict.pdf указано полное описание проделанного исследования – цели, ход работы, результаты, выводы.**
 - **В директории TS_app содержится программный комплекс, созданный в ходе работы. requirements.txt – файл с зависимостями. arima_pipeline.py, financial_pipeline.py, ssa_pipeline.py – программы с различными алгоритмами для прогнозирования временных рядов, полное их описание содержится в TS_predict.pdf**
+- **TS_app/improvements.py** – наивный (persistence) и сезонный baseline, честная walk-forward (one-step-ahead) оценка для ARIMA и SSA+AR, и утилита для замера времени обучения/инференса – дополнение к исходному исследованию, закрывающее его главный пробел (отсутствие baseline для сравнения).
+- **TS_app/run_experiments.py** – готовый скрипт, который прогоняет `improvements.py` на всех трёх рядах (USD/RUB, EUR/USD, AAPL) и печатает сводку метрик.
+- **poster/** – постер A0 по проекту (`Financial_TimeSeries_Poster_A0.pptx`) для постерной сессии.
 
 ## 🛠️ Установка и запуск
 
 ### 1. Установить зависимости
 Рекомендуется использовать виртуальное окружение:
 ```bash
-pip install -r requirements.txt
+pip install -r TS_app/requirements.txt
 ```
 
-### 2. Задать параметры
-Для запускаемого файла в функции main() задать interval, symbol и outputsize, а также ваш api_key для https://api.twelvedata.com/time_series
-
+### 2. Задать API-ключ
+Ключ для https://api.twelvedata.com/time_series задаётся через переменную окружения, а не в коде:
+```bash
+export TWELVEDATA_API_KEY="ваш_ключ"
+```
+Также в функции main() нужного файла можно поменять `interval`, `symbol` и `outputsize`.
 
 ### 3. Запустить нужный алгоритм
 Пример:
 ```bash
-python financial_pipeline.py
+python TS_app/financial_pipeline.py
 ```
+
+### 4. (Опционально) Прогнать naive baseline / walk-forward проверку
+```bash
+cd TS_app
+python run_experiments.py
+```
+Считает наивный прогноз, честный walk-forward ARIMA/SSA+AR и время обучения LSTM по всем трём рядам — см. `improvements.py` для деталей.
 
 ---
