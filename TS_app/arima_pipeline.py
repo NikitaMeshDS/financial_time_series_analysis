@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import requests
@@ -33,8 +34,8 @@ def preprocess_data(data, interval, data_size):
     
     freq_map = {
         "1day": "D",
-        "1h": "H",
-        "5min": "5T"
+        "1h": "h",
+        "5min": "5min"
     }
     
     full_index = pd.date_range(
@@ -123,8 +124,15 @@ def main():
     symbol = "USD/RUB"
     interval = "1h"
     outputsize = "5000"
-    api_key = "5326f043daec4329a7041b579b9aaa53"
-    
+    api_key = os.environ.get("TWELVEDATA_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "Set the TWELVEDATA_API_KEY environment variable before running "
+            "(e.g. `export TWELVEDATA_API_KEY=...` or, in Colab, "
+            "`os.environ['TWELVEDATA_API_KEY'] = getpass()`). "
+            "Never hardcode API keys in source files that go to a public repo."
+        )
+
     df = get_data(symbol, interval, outputsize, api_key)
     
     df['close'] = df['close'].replace([np.inf, -np.inf], np.nan)

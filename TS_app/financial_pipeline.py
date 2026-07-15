@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import requests
@@ -17,7 +18,7 @@ def get_data(symbol, interval, outputsize, api_key):
     }
     url = "https://api.twelvedata.com/time_series"
     data = requests.get(url, params=params).json()
-    return preprocess_data(data, interval, outputsize)
+    return preprocess_data(data, interval)
 
 def preprocess_data(data, interval):
     df = pd.DataFrame(data["values"])
@@ -35,8 +36,8 @@ def preprocess_data(data, interval):
     
     freq_map = {
         "1day": "D",
-        "1h": "H",
-        "5min": "5T"
+        "1h": "h",
+        "5min": "5min"
     }
     
     full_index = pd.date_range(
@@ -99,8 +100,13 @@ def main():
     symbol = "USD/EUR"
     interval = "1h"
     outputsize = "5000"
-    api_key = "5326f043daec4329a7041b579b9aaa53" 
-    
+    api_key = os.environ.get("TWELVEDATA_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "Set the TWELVEDATA_API_KEY environment variable before running. "
+            "Never hardcode API keys in source files that go to a public repo."
+        )
+
     df = get_data(symbol, interval, outputsize, api_key)
     df = add_technical_indicators(df)
     
